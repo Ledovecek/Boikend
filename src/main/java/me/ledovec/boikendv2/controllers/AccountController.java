@@ -17,8 +17,14 @@ import java.util.UUID;
 @RequestMapping("api/authentication")
 public class AccountController {
 
+    private final AccountRepository accountRepository;
+    private final Security security;
+
     @Autowired
-    private AccountRepository accountRepository;
+    public AccountController(AccountRepository accountRepository, Security security) {
+        this.accountRepository = accountRepository;
+        this.security = security;
+    }
 
     @PostMapping(path = "register")
     public AuthResult register(@RequestBody Account account) {
@@ -38,7 +44,7 @@ public class AccountController {
         }
         String password = account.getPassword();
         String secret = acc.getPassword();
-        boolean matches = Security.passwordMatches(password, secret);
+        boolean matches = security.passwordMatches(password, secret);
         if (matches) {
             return Pair.of(AuthResult.SUCCESSFUL, UUID.randomUUID().toString());
         }
