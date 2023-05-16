@@ -15,7 +15,7 @@ public class Voyage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column private long id;
 
-    @OneToOne @Column
+    @OneToOne
     private Buoy buoy;
 
 }
