@@ -1,5 +1,6 @@
 package me.ledovec.boikendv2.controllers;
 
+import com.google.common.collect.Lists;
 import me.ledovec.boikendv2.Constants;
 import me.ledovec.boikendv2.entities.Measurement;
 import me.ledovec.boikendv2.entities.Voyage;
@@ -9,11 +10,11 @@ import me.ledovec.boikendv2.objects.MeasurementParameters;
 import me.ledovec.boikendv2.repositories.MeasurementsRepository;
 import me.ledovec.boikendv2.repositories.VoyageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/measurements")
@@ -26,16 +27,30 @@ public class MeasurementController {
     private MeasurementsRepository measurementsRepository;
 
     @PostMapping("write")
-    public Result write(MeasurementParameters measurementParameters) {
-        Optional<Voyage> voyageOptional = voyageRepository.findById(measurementParameters.getVoyageId());
-        if (voyageOptional.isPresent()) {
-            Voyage voyage = voyageOptional.get();
-            Measurement measurement = new Measurement(Constants.DEFAULT_ID,
-                    voyage, measurementParameters.getUnit(), measurementParameters.getValue(), measurementParameters.getDate());
-            measurementsRepository.save(measurement);
-            return BuoyResult.SUCCESSFUL;
+    public Result write(@RequestBody MeasurementParameters measurementParameters) {
+        Measurement measurement = new Measurement(Constants.DEFAULT_ID,
+                measurementParameters.getUnit(), measurementParameters.getValue(), measurementParameters.getDate());
+        measurementsRepository.save(measurement);
+        return BuoyResult.SUCCESSFUL;
+    }
+
+    @PostMapping("writeMultiple")
+    public Result writeMultiple(@RequestBody List<MeasurementParameters> measurementParameters) {
+        measurementParameters.forEach(this::write);
+        return BuoyResult.SUCCESSFUL;
+    }
+
+    @GetMapping
+    public List<Measurement> get(@RequestParam long voyageId) {
+        Optional<Voyage> voyageOptional = voyageRepository.findById(voyageId);
+        if (voyageOptional.isEmpty()) {
+            return Lists.newArrayList();
         }
-        return BuoyResult.NOT_FOUND;
+        Voyage voyage = voyageOptional.get();
+        long beginDate = voyage.getBeginDate();
+        long endDate = voyage.getEndDate();
+        List<Measurement> measurements = measurementsRepository.findAll();
+        return measurements.stream().filter(m -> m.getDate() >= beginDate && m.getDate() <= endDate).collect(Collectors.toList());
     }
 
 }

@@ -7,7 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public class VoyageParameters {
 
-    private String accountName;
     private String buoyCode;
+    private String name;
+    private String description;
+    private long beginTime;
+    private long endTime;
 
 }

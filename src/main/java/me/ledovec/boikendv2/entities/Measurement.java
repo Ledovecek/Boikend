@@ -13,13 +13,10 @@ public class Measurement {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column private long id;
 
-    @OneToOne
-    private Voyage voyage;
+    @Column
+    private String unit;
 
-    @OneToOne
-    private Unit unit;
-
-    @Column private long value;
+    @Column private double value;
 
     @Column private long date;
 
