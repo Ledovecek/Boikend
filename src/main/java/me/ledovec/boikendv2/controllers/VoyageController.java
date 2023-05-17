@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,8 +43,8 @@ public class VoyageController {
             return Pair.of(BuoyResult.NOT_FOUND, null);
         }
         Voyage voyage = new Voyage(Constants.DEFAULT_ID, voyageParameters.getName(), voyageParameters.getDescription(), beginTime, endTime, buoy);
-        voyageRepository.save(voyage);
-        return Pair.of(BuoyResult.SUCCESSFUL, voyage);
+        Voyage save = voyageRepository.save(voyage);
+        return Pair.of(BuoyResult.SUCCESSFUL, save);
     }
 
     @GetMapping
@@ -51,6 +54,16 @@ public class VoyageController {
             return Pair.of(BuoyResult.NOT_FOUND, Lists.newArrayList());
         }
         return Pair.of(BuoyResult.SUCCESSFUL, voyageRepository.findAllByBuoy(buoy));
+    }
+
+    @PostMapping(path = "stop")
+    public void stopVoyage(@RequestParam long voyageId, @RequestParam long endDate) {
+        Optional<Voyage> voyageOptional = voyageRepository.findById(voyageId);
+        if (voyageOptional.isPresent()) {
+            Voyage voyage = voyageOptional.get();
+            voyage.setEndDate(endDate);
+            voyageRepository.save(voyage);
+        }
     }
 
 }

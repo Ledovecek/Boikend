@@ -2,6 +2,7 @@ package me.ledovec.boikendv2.controllers;
 
 import me.ledovec.boikendv2.entities.Account;
 import me.ledovec.boikendv2.enums.AuthResult;
+import me.ledovec.boikendv2.enums.Result;
 import me.ledovec.boikendv2.repositories.AccountRepository;
 import me.ledovec.boikendv2.security.Security;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,28 +28,28 @@ public class AccountController {
     }
 
     @PostMapping(path = "register")
-    public AuthResult register(@RequestBody Account account) {
+    public Pair<Result, Long> register(@RequestBody Account account) {
         Account acc = accountRepository.findAccountByName(account.getName());
         if (acc != null) {
-            return AuthResult.ALREADY_REGISTERED;
+            return Pair.of(AuthResult.ALREADY_REGISTERED, -1L);
         }
-        accountRepository.save(account);
-        return AuthResult.SUCCESSFUL;
+        Account save = accountRepository.save(account);
+        return Pair.of(AuthResult.SUCCESSFUL, save.getId());
     }
 
     @PostMapping(path = "login")
-    public Pair<AuthResult, String> login(@RequestBody Account account) {
+    public Pair<AuthResult, Long> login(@RequestBody Account account) {
         Account acc = accountRepository.findAccountByName(account.getName());
         if (acc == null) {
-            return Pair.of(AuthResult.NOT_REGISTERED, "");
+            return Pair.of(AuthResult.NOT_REGISTERED, -1L);
         }
         String password = account.getPassword();
         String secret = acc.getPassword();
         boolean matches = security.passwordMatches(password, secret);
         if (matches) {
-            return Pair.of(AuthResult.SUCCESSFUL, UUID.randomUUID().toString());
+            return Pair.of(AuthResult.SUCCESSFUL, acc.getId());
         }
-        return Pair.of(AuthResult.PASSWORD_MISMATCH, "");
+        return Pair.of(AuthResult.PASSWORD_MISMATCH, -1L);
     }
 
 }

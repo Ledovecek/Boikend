@@ -50,6 +50,9 @@ public class MeasurementController {
         long beginDate = voyage.getBeginDate();
         long endDate = voyage.getEndDate();
         List<Measurement> measurements = measurementsRepository.findAll();
+        if (endDate == -1) {
+            return measurements.stream().filter(m -> m.getDate() >= beginDate).collect(Collectors.toList());
+        }
         return measurements.stream().filter(m -> m.getDate() >= beginDate && m.getDate() <= endDate).collect(Collectors.toList());
     }
 
