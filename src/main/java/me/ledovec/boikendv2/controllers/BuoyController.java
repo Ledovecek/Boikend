@@ -5,6 +5,7 @@ import me.ledovec.boikendv2.entities.Buoy;
 import me.ledovec.boikendv2.enums.AuthResult;
 import me.ledovec.boikendv2.enums.BuoyResult;
 import me.ledovec.boikendv2.enums.Result;
+import me.ledovec.boikendv2.objects.BuoyAppendParameters;
 import me.ledovec.boikendv2.repositories.AccountRepository;
 import me.ledovec.boikendv2.repositories.BuoyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,9 @@ public class BuoyController {
     private BuoyRepository buoyRepository;
 
     @PostMapping(path = "append")
-    public Result appendBuoy(@RequestParam String accountName, @RequestParam String buoyCode) {
-        Account acc = accountRepository.findAccountByName(accountName);
-        Buoy buoy = buoyRepository.findBuoyByCode(buoyCode);
+    public Result appendBuoy(@RequestBody BuoyAppendParameters buoyAppendParameters) {
+        Account acc = accountRepository.findAccountByName(buoyAppendParameters.getAccountName());
+        Buoy buoy = buoyRepository.findBuoyByCode(buoyAppendParameters.getBuoyCode());
         if (acc == null) {
             return AuthResult.NOT_REGISTERED;
         }
@@ -34,13 +35,13 @@ public class BuoyController {
             return BuoyResult.NOT_FOUND;
         }
         acc.getBuoys().add(buoy);
-        accountRepository.save(acc);
+        accountRepository.saveAndFlush(acc);
         return BuoyResult.SUCCESSFUL;
     }
 
     @PostMapping("create")
     public Pair<Result, Buoy> createBuoy(@RequestBody Buoy buoy) {
-        Buoy save = buoyRepository.save(buoy);
+        Buoy save = buoyRepository.saveAndFlush(buoy);
         return Pair.of(BuoyResult.SUCCESSFUL, save);
     }
 

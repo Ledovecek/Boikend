@@ -43,7 +43,7 @@ public class VoyageController {
             return Pair.of(BuoyResult.NOT_FOUND, null);
         }
         Voyage voyage = new Voyage(Constants.DEFAULT_ID, voyageParameters.getName(), voyageParameters.getDescription(), beginTime, endTime, buoy);
-        Voyage save = voyageRepository.save(voyage);
+        Voyage save = voyageRepository.saveAndFlush(voyage);
         return Pair.of(BuoyResult.SUCCESSFUL, save);
     }
 
@@ -62,7 +62,7 @@ public class VoyageController {
         if (voyageOptional.isPresent()) {
             Voyage voyage = voyageOptional.get();
             voyage.setEndDate(endDate);
-            voyageRepository.save(voyage);
+            voyageRepository.saveAndFlush(voyage);
         }
     }
 

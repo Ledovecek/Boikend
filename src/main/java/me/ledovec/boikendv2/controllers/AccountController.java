@@ -33,7 +33,7 @@ public class AccountController {
         if (acc != null) {
             return Pair.of(AuthResult.ALREADY_REGISTERED, -1L);
         }
-        Account save = accountRepository.save(account);
+        Account save = accountRepository.saveAndFlush(account);
         return Pair.of(AuthResult.SUCCESSFUL, save.getId());
     }
 

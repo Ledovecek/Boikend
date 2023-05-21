@@ -28,9 +28,10 @@ public class MeasurementController {
 
     @PostMapping("write")
     public Result write(@RequestBody MeasurementParameters measurementParameters) {
+        long now = System.currentTimeMillis();
         Measurement measurement = new Measurement(Constants.DEFAULT_ID,
-                measurementParameters.getUnit(), measurementParameters.getValue(), measurementParameters.getDate());
-        measurementsRepository.save(measurement);
+                measurementParameters.getUnit(), measurementParameters.getValue(), now);
+        measurementsRepository.saveAndFlush(measurement);
         return BuoyResult.SUCCESSFUL;
     }
 
