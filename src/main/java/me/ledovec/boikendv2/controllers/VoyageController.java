@@ -7,6 +7,7 @@ import me.ledovec.boikendv2.entities.Measurement;
 import me.ledovec.boikendv2.entities.Voyage;
 import me.ledovec.boikendv2.enums.BuoyResult;
 import me.ledovec.boikendv2.enums.Result;
+import me.ledovec.boikendv2.objects.VoyageEndParameters;
 import me.ledovec.boikendv2.objects.VoyageParameters;
 import me.ledovec.boikendv2.repositories.BuoyRepository;
 import me.ledovec.boikendv2.repositories.MeasurementsRepository;
@@ -57,13 +58,15 @@ public class VoyageController {
     }
 
     @PostMapping(path = "stop")
-    public void stopVoyage(@RequestParam long voyageId, @RequestParam long endDate) {
-        Optional<Voyage> voyageOptional = voyageRepository.findById(voyageId);
+    public Result stopVoyage(@RequestBody VoyageEndParameters voyageEndParameters) {
+        Optional<Voyage> voyageOptional = voyageRepository.findById(voyageEndParameters.getVoyageId());
         if (voyageOptional.isPresent()) {
             Voyage voyage = voyageOptional.get();
-            voyage.setEndDate(endDate);
+            voyage.setEndDate(voyageEndParameters.getEndDate());
             voyageRepository.saveAndFlush(voyage);
+            return BuoyResult.SUCCESSFUL;
         }
+        return BuoyResult.NOT_FOUND;
     }
 
 }
